@@ -11,7 +11,7 @@ let http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-let host = process.env.GITHUB_HOOK_SERVER || app.config.server || 'github.local';
+let host = process.env.GITHUB_HOOK_SERVER || app.config.server || 'ghook.local';
 let port = normalizePort(process.env.GITHUB_HOOK_PORT || app.config.port || '3000');
 
 app.set('host', host);
@@ -25,7 +25,7 @@ let server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port);
+server.listen(port, host);
 server.on('error', onError);
 server.on('listening', onListening);
 
