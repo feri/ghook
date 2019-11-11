@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Access-Control-Allow-Headers: Origin, Accept, X-Session_id, Content-Type
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Methods: HEAD, DELETE, POST, GET, OPTIONS, PUT
+Connection: close
+

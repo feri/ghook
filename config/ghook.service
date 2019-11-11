@@ -1,0 +1,29 @@
+#
+# ghook systemd service file
+#  
+# Place it to /etc/systemd/system
+#
+# Enable the service with: systemctl enable ghook.service
+#
+# NOTE! Requires a user called www-data
+#
+# NOTE! Requires a directory for logs: /var/log/ghook
+#       The log directory shall be writeable by www-data user
+#
+# NOTE! Assumes that the project is deployed to /var/www/ghook
+#
+[Unit]
+Description=ghook server
+ConditionPathExists=|/usr/bin
+After=network.target
+
+[Service]
+User=www-data
+RestartSec=5s
+Restart=always
+SyslogIdentifier=GHOOK
+Environment="GHOOK_LOG=/var/log/ghook.log"
+ExecStart=/var/www/ghook/bin/www > ${GHOOK_LOG} 2>&1
+
+[Install]
+WantedBy=multi-user.target
