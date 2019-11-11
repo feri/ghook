@@ -1,11 +1,11 @@
-== ghook
-
+ghook
+===
 A simple Github web hook server app that can listen to push notifications coming
 from Github repository. Based on the notifications the app will perform actions 
 on the server where it has been installed.
 
 Getting Started
-===
+==
 Fetch all dependencies:
 ```
 $ npm install
@@ -17,7 +17,7 @@ $ bin/www
 ```
 
 Configuration
-===
+==
 The app has a configuration file (config/ghook.config.js). Options that can be 
 configured are the following
 
