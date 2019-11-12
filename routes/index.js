@@ -17,7 +17,6 @@ const fsExtra = require('fs-extra');
 
 /* GET */
 router.get('/', function(req, res, next) {
-
   fs.readdir(req.app.config.checkouts, (err, files) => {
     let data = {};
     if (err) {
@@ -29,14 +28,14 @@ router.get('/', function(req, res, next) {
     }
     res.render('index', data);
   });
-
 });
 
 /* POST */
 router.post('/', function(req, res, next) {
   let msg = 'ack';
+  const { spawn } = require('child_process');
   let pushObj = req.body;
-  let checkOutDir, gitCmd, normName, mode;
+  let checkOutDir, normName, mode;
 
   // check if repository.clone_url is available
   if (typeof pushObj.repository.clone_url === 'undefined') {
@@ -53,24 +52,53 @@ router.post('/', function(req, res, next) {
       checkOutDir = req.app.config.checkouts + '/' + normName;
       fsExtra.pathExists(checkOutDir, (err, exists) => {
         if (exists) {
-          // 3a. pull the git repo to checkOutDir
-          gitCmd = 'cd ' + checkOutDir + '; ' + 'git pull';
+
+          // 3. change to the checkOutDir
+          process.chdir(checkOutDir);
+          console.log(`New directory: ${process.cwd()}`);
+
+          const pull = spawn('git', ['pull']);
+
+          pull.stdout.on('data', (data) => {
+            console.log(data.toString());
+          });
+
+          pull.stderr.on('data', (data) => {
+            console.error('git pull stderr: ${data}');
+          });
+
+          pull.on('close', (code) => {
+            if (code !== 0) {
+              console.log('git pull exited with code: ', code);
+            }
+          });
+          
+          pull.on('error', (err) => {
+            console.error('git pull failed: ', err);
+          });
+
         } else {
-          // 3b. clone the git repo to checkOutDir
-          gitCmd = 'git clone ' + pushObj.repository.clone_url + ' ' + checkOutDir;
+          // 4b. clone the git repo to checkOutDir
+          const clone = spawn('git', ['clone', pushObj.repository.clone_url, checkOutDir]);
+
+          clone.stdout.on('data', (data) => {
+            console.log(data.toString());
+          });
+
+          clone.stderr.on('data', (data) => {
+            console.error('git clone stderr: ', data.toString());
+          });
+
+          clone.on('close', (code) => {
+            if (code !== 0) {
+              console.log('git clone exited with code: ', code);
+            }
+          });
+          
+          clone.on('error', (err) => {
+            console.error('git clone failed: ', err);
+          });
         }
-        const { exec } = require('child_process');
-        let opts = {
-          timeout: 15
-        }
-        exec(gitCmd, opts, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-          console.error(`stderr: ${stderr}`);
-        });
       })
     }
   }
